@@ -97,7 +97,7 @@ button,input,select,textarea{touch-action:manipulation}summary{cursor:pointer;pa
   <div><div class="navlabel">ENTRENAMIENTO</div><nav class="nav">
     <button class="active" data-page="dashboard"><span class="ico">◈</span>Resumen</button>
     <button data-page="log"><span class="ico">＋</span>Registrar sesión</button>
-    <button data-page="progress"><span class="ico">⌁</span>Mi evolución</button>
+    <button data-page="progress"><span class="ico">⌁</span>Rendimiento</button><button data-page="wellness"><span class="ico">♡</span>Bienestar</button>
     <button data-page="history"><span class="ico">▤</span>Historial</button>
   </nav></div>
   <div><div class="navlabel">CONFIGURACIÓN</div><nav class="nav">
@@ -184,14 +184,19 @@ button,input,select,textarea{touch-action:manipulation}summary{cursor:pointer;pa
       </div>
     </div>
 
-    <div class="card analytics-section">
+    <div class="card analytics-section" style="display:none">
       <div class="chart-card-head"><div><div class="eyebrow">DIMENSIÓN CORPORAL</div><h2 style="margin-top:5px">Evolución antropométrica</h2><p>Peso, perímetros y porcentaje graso registrados a lo largo del tiempo.</p></div><div class="field" style="min-width:180px"><label>Medida a visualizar</label><select id="bodyMetric"><option value="peso">Peso corporal</option><option value="grasa">Grasa corporal</option><option value="cintura">Cintura</option><option value="pecho">Pecho</option><option value="cuello">Cuello</option><option value="brazo">Brazo</option><option value="muslo">Muslo</option><option value="gemelo">Gemelo</option></select></div></div>
       <div class="chartbox"><canvas id="bodyChart"></canvas></div>
       <div class="chart-kpis"><div class="analytics-mini"><div class="statlabel">Primer registro</div><div class="statvalue" id="bodyFirst">—</div><div class="statnote" id="bodyFirstDate">—</div></div><div class="analytics-mini"><div class="statlabel">Último registro</div><div class="statvalue" id="bodyLast">—</div><div class="statnote" id="bodyLastDate">—</div></div><div class="analytics-mini"><div class="statlabel">Cambio total</div><div class="statvalue" id="bodyDelta">—</div><div class="statnote" id="bodyDeltaNote">Desde el primer dato</div></div></div>
       <p class="chart-empty-note" id="bodyChartNote">Introduce medidas fechadas desde Perfil y medidas. No se interpolan datos ni se inventan valores.</p>
     </div>
 
-    <div class="card analytics-section" id="musclePerformancePanel">
+    <div class="card analytics-section" id="unifiedPerformance"><div class="chart-card-head"><div><div class="eyebrow">PROGRESO PERSONAL</div><h2>Tu rendimiento</h2><p>Una sola gráfica para explorar regiones y músculos. Índice 100 = referencia personal.</p></div></div>
+<div class="formgrid two" style="margin-top:14px"><div class="field"><label>Región</label><select id="unifiedRegion"><option>Pierna</option><option>Tirón</option><option>Empuje</option></select></div><div class="field"><label>Detalle</label><select id="unifiedTarget"></select></div></div>
+<div class="analytics-mini-grid" style="margin-top:12px"><div class="analytics-mini"><div class="statlabel">Índice personal</div><div class="statvalue" id="unifiedValue">—</div><div class="statnote" id="unifiedChange">Sin referencia</div></div><div class="analytics-mini"><div class="statlabel">Cobertura</div><div class="statvalue" id="unifiedCoverage">—</div><div class="statnote" id="unifiedCoverageNote">Sin datos comparables</div></div></div>
+<div class="chartbox" id="unifiedChartWrap" hidden><canvas id="unifiedChart"></canvas></div><p class="chart-empty-note" id="unifiedNote"></p>
+<details><summary>Ver un ejercicio concreto</summary><div class="formgrid two" style="margin-top:12px"><div class="field"><label>Ejercicio</label><select id="unifiedExercise"></select></div><div class="field"><label>Medida</label><select id="unifiedExerciseMetric"><option value="e1rm">Fuerza estimada</option><option value="load">Carga</option><option value="reps">Repeticiones</option><option value="volume">Volumen</option></select></div></div><div class="chartbox"><canvas id="unifiedExerciseChart"></canvas></div></details>
+<details><summary>Cómo se interpreta</summary><p class="hint">Cada ejercicio se compara consigo mismo (máquina y ajustes iguales). Primero se promedian ejercicios por músculo y después músculos por región para evitar que uno domine por tener más ejercicios. Los movimientos multiarticulares se asignan a una región principal. Solo se usan referencias comparables; la cobertura indica lo que falta. El índice es descriptivo, no una medición directa de hipertrofia ni de fuerza máxima. El RIR y otras variables opcionales no son necesarios.</p></details></div><div class="card analytics-section" id="musclePerformancePanel" style="display:none">
       <div class="chart-card-head"><div><div class="eyebrow">TU EVOLUCIÓN</div><h2 style="margin-top:5px">Rendimiento por músculo</h2><p>Compara tu evolución aunque cambies de ejercicio, sin mezclar kilos de máquinas distintas.</p></div></div>
       <div class="formgrid two" style="margin-top:14px"><div class="field"><label>Grupo muscular</label><select id="musclePerformanceGroup"></select></div><div class="field"><label>Ver</label><select id="musclePerformanceMode"><option value="relative">Evolución relativa</option><option value="absolute">Fuerza por ejercicio</option><option value="compare">Comparación externa (pendiente)</option></select></div></div>
       <div class="analytics-mini-grid" style="margin-top:12px"><div class="analytics-mini"><div class="statlabel">Evolución personal</div><div class="statvalue" id="musclePerformanceValue">—</div><div class="statnote" id="musclePerformanceChange">Sin referencia</div></div><div class="analytics-mini"><div class="statlabel">Fiabilidad</div><div class="statvalue" id="musclePerformanceTrust">—</div><div class="statnote" id="musclePerformanceCount">Historial insuficiente</div></div></div>
@@ -200,7 +205,7 @@ button,input,select,textarea{touch-action:manipulation}summary{cursor:pointer;pa
       <details><summary>Cómo se calcula</summary><p class="hint">Cada ejercicio se compara solo con sus propias sesiones, máquina, ajustes y criterio de carga. La primera referencia válida equivale a 100. Se agrupan variaciones porcentuales de ejercicios con al menos dos exposiciones. Es un indicador descriptivo propio de IRONLOG, no una medición directa de fuerza muscular ni hipertrofia. No se calculan percentiles sin una fuente normativa verificable.</p></details>
     </div>
 
-    <div class="card analytics-section">
+    <div class="card analytics-section" style="display:none">
       <div class="chart-card-head"><div><div class="eyebrow">DIMENSIÓN DE RENDIMIENTO</div><h2 style="margin-top:5px">Progresión por ejercicio</h2><p>Compara el mismo ejercicio, equipo, configuración y criterio de ejecución.</p></div><span class="tag">Fuerza · reps · volumen</span></div>
       <div class="formgrid three" style="margin-top:14px"><div class="field"><label>Ejercicio registrado</label><select id="progressExercise"><option value="">Registra ejercicios primero</option></select></div><div class="field"><label>Métrica</label><select id="progressMetric"><option value="e1rm">1RM estimado (Epley)</option><option value="load">Carga de la serie</option><option value="volume">Volumen (carga × reps)</option><option value="reps">Repeticiones de la mejor serie</option></select></div><div class="field"><label>Ventana</label><select id="progressWindow"><option value="all">Todo el histórico</option><option value="5">Últimas 5 exposiciones</option><option value="10">Últimas 10 exposiciones</option></select></div></div>
       <div class="chartbox"><canvas id="progressChart"></canvas></div>
@@ -208,17 +213,21 @@ button,input,select,textarea{touch-action:manipulation}summary{cursor:pointer;pa
       <div class="chart-kpis"><div class="analytics-mini"><div class="statlabel">Mejor marca estimada</div><div class="statvalue" id="bestMark">—</div><div class="statnote">No sustituye a un 1RM probado</div></div><div class="analytics-mini"><div class="statlabel">Última exposición</div><div class="statvalue" id="lastMark">—</div><div class="statnote">Mismo ejercicio / equipo</div></div><div class="analytics-mini"><div class="statlabel">Cambio desde inicio</div><div class="statvalue" id="changeMark">—</div><div class="statnote">Métrica seleccionada</div></div></div>
     </div>
 
-    <div class="card analytics-section">
+    <div class="card analytics-section" style="display:none">
       <div class="chart-card-head"><div><div class="eyebrow">DIMENSIÓN DE CARGA DE ENTRENAMIENTO</div><h2 style="margin-top:5px">Constancia y series efectivas por semana</h2><p>Volumen de series no calentamiento, útil para observar la distribución de trabajo.</p></div></div>
       <div class="chartbox"><canvas id="volumeChart"></canvas></div>
       <p class="chart-empty-note" id="volumeChartNote">El número de series permite observar la carga de trabajo sin sumar kilos de máquinas mecánicamente distintas.</p>
     </div>
 
-    <div class="sectionhead"><div><h2>Lectura del entrenamiento</h2><p>Feedback orientativo: una tendencia no equivale por sí sola a una conclusión.</p></div></div>
+    <div style="display:none"><div class="sectionhead"><div><h2>Lectura del entrenamiento</h2><p>Feedback orientativo: una tendencia no equivale por sí sola a una conclusión.</p></div></div>
     <div class="grid" id="progressInsights" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="empty">Registra al menos dos exposiciones del mismo ejercicio para empezar a comparar.</div></div>
-    <p class="footnote">El 1RM estimado utiliza Epley y pierde precisión con series largas, técnica variable o esfuerzos alejados del fallo. Las cargas no son directamente comparables entre marcas, máquinas o relaciones de poleas. Los perímetros requieren condiciones de medición consistentes. La aplicación describe tendencias, no diagnostica.</p>
+    <p class="footnote">El 1RM estimado utiliza Epley y pierde precisión con series largas, técnica variable o esfuerzos alejados del fallo. Las cargas no son directamente comparables entre marcas, máquinas o relaciones de poleas. Los perímetros requieren condiciones de medición consistentes. La aplicación describe tendencias, no diagnostica.</p></div>
   </section>
 
+<section class="page" id="page-wellness"><div class="card analytics-section"><div class="chart-card-head"><div><div class="eyebrow">DATOS OPCIONALES</div><h2>Bienestar y recuperación</h2><p>Consulta las sensaciones que hayas registrado antes o después de entrenar. No hace falta rellenar nada para usar IRONLOG.</p></div></div>
+<div class="field" style="margin-top:14px"><label>Qué quieres ver</label><select id="wellnessMetric"><option value="sleep">Sueño (horas)</option><option value="energy">Energía (1–5)</option><option value="fatigue">Fatiga previa (1–5)</option><option value="pain">Molestias (0–10)</option><option value="rpe">Esfuerzo de la sesión (1–10)</option></select></div>
+<div class="analytics-mini-grid" style="margin-top:12px"><div class="analytics-mini"><div class="statlabel">Media registrada</div><div class="statvalue" id="wellnessAverage">—</div><div class="statnote" id="wellnessCount">Sin registros</div></div><div class="analytics-mini"><div class="statlabel">Último valor</div><div class="statvalue" id="wellnessLatest">—</div><div class="statnote" id="wellnessDate">—</div></div></div>
+<div class="chartbox" id="wellnessChartWrap" hidden><canvas id="wellnessChart"></canvas></div><p class="chart-empty-note" id="wellnessNote">Registra opcionalmente tus sensaciones en una sesión para verlas aquí.</p><details><summary>Cómo interpretar estos datos</summary><p class="hint">Solo se representan valores introducidos; un campo vacío nunca equivale a cero. Estos registros reflejan días con entrenamiento, no todos los días. Las posibles asociaciones con el rendimiento no demuestran causalidad y el apartado no proporciona diagnósticos.</p></details></div></section>
   <section class="page" id="page-library">
     <div class="card"><div class="sectionhead" style="margin:0 0 14px"><div><h2>Catálogo de máquinas y ejercicios</h2><p>Base inicial de modelos y gamas reales. Puedes filtrar, buscar o incorporar el equipo de tu gimnasio.</p></div><button class="btn primary" id="addCustomMachine">＋ Añadir máquina</button></div>
       <div class="searchrow"><div class="field"><label>Buscar por ejercicio, código o modelo</label><input id="machineSearch" placeholder="Ej. SS-CP, press pecho, leg press..." /></div><div class="field" style="max-width:230px"><label>Marca</label><select id="brandFilter"><option value="all">Todas las marcas</option></select></div><div class="field" style="max-width:190px"><label>Grupo muscular</label><select id="groupFilter"><option value="all">Todos</option><option value="Pecho">Pecho</option><option value="Espalda">Espalda</option><option value="Hombros">Hombros</option><option value="Bíceps">Bíceps</option><option value="Tríceps">Tríceps</option><option value="Pierna">Pierna</option><option value="Glúteos">Glúteos</option><option value="Core">Core</option><option value="General">General</option></select></div></div>
@@ -350,7 +359,7 @@ function showAccountGate(mode='choose'){
 function activateProfile(id){if(persistDraft()===false){alert('No se pudo guardar el borrador. Exporta la sesión antes de cambiar de perfil.');return false;}const account=profileStore.accounts.find(a=>a.id===id);if(!account)return;activeProfileId=id;data=normalizeData(account.data);account.name=data.profile.name||account.name;if(!persistProfileStore())return false;$('accountGate').hidden=true;updateAccountHeader();$('sessionDate').value=today();$('measureDate').value=today();$('sessionWeight').value=data.profile.weight||'';restoreDraft();renderDashboard();renderProfile();renderLibrary();go(draftHasContent()?'log':'dashboard');return true;}
 $('profileSwitch').onclick=()=>showAccountGate('choose');
 
-function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+page).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));const names={dashboard:['PANEL DE RENDIMIENTO','Resumen'],log:['REGISTRO DE SESIÓN','Registrar entrenamiento'],history:['TU HISTÓRICO','Historial'],progress:['ANÁLISIS MULTIDIMENSIONAL','Mi evolución'],library:['BASE DE EQUIPAMIENTO','Máquinas y ejercicios'],profile:['DATOS DEL DEPORTISTA','Perfil y medidas']};$('eyebrow').textContent=names[page][0];$('pageTitle').textContent=names[page][1];$('sidebar').classList.remove('open');document.querySelectorAll('.mobile-nav [data-go]').forEach(b=>{if(b.dataset.go===page)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});if(page==='dashboard')renderDashboard();if(page==='history')renderHistory();if(page==='progress')renderProgress();if(page==='library')renderLibrary();if(page==='profile')renderProfile();}
+function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('page-'+page).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));const names={dashboard:['PANEL DE RENDIMIENTO','Resumen'],log:['REGISTRO DE SESIÓN','Registrar entrenamiento'],history:['TU HISTÓRICO','Historial'],progress:['TU PROGRESO','Rendimiento'],wellness:['DESCANSO Y SENSACIONES','Bienestar'],library:['BASE DE EQUIPAMIENTO','Máquinas y ejercicios'],profile:['DATOS DEL DEPORTISTA','Perfil y medidas']};$('eyebrow').textContent=names[page][0];$('pageTitle').textContent=names[page][1];$('sidebar').classList.remove('open');document.querySelectorAll('.mobile-nav [data-go]').forEach(b=>{if(b.dataset.go===page)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});if(page==='dashboard')renderDashboard();if(page==='history')renderHistory();if(page==='progress')renderProgress();if(page==='wellness')renderWellness();if(page==='library')renderLibrary();if(page==='profile')renderProfile();}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));$('mobileMenu').onclick=()=>$('sidebar').classList.toggle('open');
 function syncSplitCards(){document.querySelectorAll('[data-fast-split]').forEach(b=>b.classList.toggle('active',b.dataset.fastSplit===$('sessionSplit').value));}
 document.querySelectorAll('[data-fast-split]').forEach(b=>b.onclick=()=>{$('sessionSplit').value=b.dataset.fastSplit==='full'?'full':b.dataset.fastSplit;syncSplitCards();});
@@ -507,9 +516,83 @@ function renderMusclePerformance(){
 
 }
 $('musclePerformanceGroup').addEventListener('change',renderMusclePerformance);$('musclePerformanceMode').addEventListener('change',renderMusclePerformance);
-function renderProgress(){renderMusclePerformance();renderBodyProgress();renderWorkloadProgress();const hist=collectExerciseHistory(),sel=$('progressExercise');const old=sel.value;const entries=Object.entries(hist).sort((a,b)=>a[1][0].name.localeCompare(b[1][0].name));sel.innerHTML=entries.length?entries.map(([k,v])=>`<option value="${escapeHtml(k)}">${escapeHtml(v[0].name)} · ${escapeHtml(machineById(v[0].machineId).brand)}${v[0].setup?' · '+escapeHtml(v[0].setup):''}</option>`).join(''):'<option value="">Registra ejercicios primero</option>';if(entries.some(([k])=>k===old))sel.value=old;updateProgressChart();}
+
+const UNIFIED_GROUPS={'Pierna':['Cuádriceps','Isquiosurales','Glúteos','Pantorrillas','Aductores'],'Tirón':['Espalda','Bíceps','Antebrazo'],'Empuje':['Pecho','Hombros','Tríceps']};
+function unifiedMuscle(e){
+ const n=normExercise(e.name||'');
+ if(/aductor|aduccion/.test(n))return 'Aductores';
+ if(/gemelo|pantorrilla|soleo|elevacion de talones/.test(n))return 'Pantorrillas';
+ if(/femoral|isquio|curl de pierna|peso muerto rumano/.test(n))return 'Isquiosurales';
+ if(/gluteo|hip thrust|abduccion|puente de cadera/.test(n))return 'Glúteos';
+ if(/sentadilla|prensa|extension de cuadriceps|extension de pierna|zancada|hack squat/.test(n))return 'Cuádriceps';
+ if(/press frances|triceps|extension de codo|fondos de triceps/.test(n))return 'Tríceps';
+ if(/curl|biceps|predicador/.test(n))return 'Bíceps';
+ if(/antebrazo|muneca|farmer/.test(n))return 'Antebrazo';
+ if(/elevacion lateral|deltoide|press militar|hombro|face pull|pajaro/.test(n))return 'Hombros';
+ if(/press banca|press inclinado|press declinado|pecho|pectoral|apertura|cruce de poleas|flexion|fondos/.test(n))return 'Pecho';
+ if(/remo|jalon|dominada|dorsal|espalda|pullover/.test(n))return 'Espalda';
+ const g=muscleGroupForExercise(e);
+ return g==='Core'?null:g;
+}
+function renderUnifiedPerformance(){
+ const region=$('unifiedRegion').value,select=$('unifiedTarget'),old=select.value;
+ const opts=['General',...UNIFIED_GROUPS[region]];
+ select.innerHTML=opts.map(v=>'<option value="'+escapeHtml(v)+'">'+escapeHtml(v==='General'?region+' completo':v)+'</option>').join('');
+ select.value=opts.includes(old)?old:'General';
+ const target=select.value,all=Object.values(collectExerciseHistory()),muscles=target==='General'?UNIFIED_GROUPS[region]:[target];
+ const series=all.filter(x=>x.length>=2&&!x[0].assisted&&muscles.includes(unifiedMuscle(x[0]))&&x.every(y=>Number.isFinite(y.best)&&y.best>0));
+ const grouped=new Map(muscles.map(m=>[m,series.filter(x=>unifiedMuscle(x[0])===m)]));
+ const usable=[...grouped].filter(([m,x])=>x.length);
+ const dates=[...new Set(series.flatMap(x=>x.map(y=>y.date)))].sort();
+ const points=dates.map(date=>{
+  const muscleValues=usable.map(([m,exercises])=>{
+   const vals=exercises.map(ex=>{const current=ex.filter(z=>z.date<=date).slice(-1)[0];if(!current)return null;return Math.max(.5,Math.min(1.5,current.best/ex[0].best))*100}).filter(x=>x!==null);
+   return vals.length===exercises.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+  }).filter(x=>x!==null);
+  return {date,value:muscleValues.length===usable.length&&muscleValues.length?muscleValues.reduce((a,b)=>a+b,0)/muscleValues.length:null};
+ }).filter(p=>p.value!==null);
+ // Show only dates when all included exercises already have a reference.
+ const enough=points.length>=2&&new Set(points.map(p=>p.date)).size>=2;
+ const last=points[points.length-1],first=points[0],delta=enough?last.value-first.value:null;
+ $('unifiedChartWrap').hidden=!enough;
+ $('unifiedValue').textContent=enough?fmt(last.value):'—';
+ $('unifiedChange').textContent=enough?(delta>=0?'+':'')+fmt(delta)+' puntos desde el primer dato comparable':'Aún sin tendencia';
+ $('unifiedCoverage').textContent=usable.length+'/'+muscles.length;
+ $('unifiedCoverageNote').textContent='músculos con referencias · '+series.length+' ejercicios';
+ $('unifiedNote').textContent=!enough?'Necesitas al menos dos fechas con ejercicios comparables. Solo hacen falta cargas y repeticiones.':usable.length<muscles.length?'Índice parcial: faltan referencias de '+muscles.filter(m=>!grouped.get(m).length).join(', ')+'.':'Índice personal orientativo. Los cambios no equivalen directamente a ganancia de músculo.';
+ if(enough)drawTrend($('unifiedChart'),points,'puntos','Rendimiento');
+ const exercise=$('unifiedExercise'),previous=exercise.value,hist=collectExerciseHistory();
+ const entries=Object.entries(hist).sort((a,b)=>a[1][0].name.localeCompare(b[1][0].name));
+ exercise.innerHTML=entries.map(([key,x])=>'<option value="'+escapeHtml(key)+'">'+escapeHtml(x[0].name)+'</option>').join('');
+ if(entries.some(([key])=>key===previous))exercise.value=previous;
+ renderUnifiedExercise();
+}
+function renderUnifiedExercise(){
+ const key=$('unifiedExercise').value,metric=$('unifiedExerciseMetric').value,series=collectExerciseHistory()[key]||[];
+ drawChart($('unifiedExerciseChart'),series,metric);
+}
+$('unifiedRegion').onchange=()=>{$('unifiedTarget').value='General';renderUnifiedPerformance()};
+$('unifiedTarget').onchange=renderUnifiedPerformance;
+$('unifiedExercise').onchange=renderUnifiedExercise;
+$('unifiedExerciseMetric').onchange=renderUnifiedExercise;
+const WELLNESS_FIELDS={sleep:{label:'sueño',unit:'h',min:0,max:24},energy:{label:'energía',unit:'/5',min:1,max:5},fatigue:{label:'fatiga',unit:'/5',min:1,max:5},pain:{label:'molestias',unit:'/10',min:0,max:10},rpe:{label:'esfuerzo',unit:'/10',min:1,max:10}};
+function renderWellness(){
+ const field=$('wellnessMetric').value,meta=WELLNESS_FIELDS[field];
+ const values=data.sessions.filter(s=>s[field]!==null&&s[field]!==undefined&&s[field]!==''&&Number.isFinite(Number(s[field]))&&Number(s[field])>=meta.min&&Number(s[field])<=meta.max).map(s=>({date:s.date,value:Number(s[field])})).sort((a,b)=>a.date.localeCompare(b.date));
+ const latest=values[values.length-1];
+ $('wellnessAverage').textContent=values.length?fmt(values.reduce((a,b)=>a+b.value,0)/values.length)+' '+meta.unit:'—';
+ $('wellnessLatest').textContent=latest?fmt(latest.value)+' '+meta.unit:'—';
+ $('wellnessCount').textContent=values.length+' registros válidos';
+ $('wellnessDate').textContent=latest?dateFmt(latest.date):'Sin registro';
+ $('wellnessChartWrap').hidden=values.length<2;
+ if(values.length>=2)drawTrend($('wellnessChart'),values,meta.unit,meta.label);
+ $('wellnessNote').textContent=values.length<2?'Necesitas dos registros de '+meta.label+' para ver su evolución. Es opcional.':'Datos registrados en días de entrenamiento; no se rellenan huecos ni se infieren valores.';
+}
+$('wellnessMetric').onchange=renderWellness;
+
+function renderProgress(){renderUnifiedPerformance();renderMusclePerformance();renderBodyProgress();renderWorkloadProgress();const hist=collectExerciseHistory(),sel=$('progressExercise');const old=sel.value;const entries=Object.entries(hist).sort((a,b)=>a[1][0].name.localeCompare(b[1][0].name));sel.innerHTML=entries.length?entries.map(([k,v])=>`<option value="${escapeHtml(k)}">${escapeHtml(v[0].name)} · ${escapeHtml(machineById(v[0].machineId).brand)}${v[0].setup?' · '+escapeHtml(v[0].setup):''}</option>`).join(''):'<option value="">Registra ejercicios primero</option>';if(entries.some(([k])=>k===old))sel.value=old;updateProgressChart();}
 function updateProgressChart(){const series=getSelectedSeries();let metric=$('progressMetric').value;if(series.length&&series[0].assisted&&metric==='e1rm'){$('progressMetric').value='reps';metric='reps';}drawChart($('progressChart'),series,metric);const vals=series.map(x=>metricVal(x,metric));$('bestMark').textContent=vals.length?fmt(Math.max(...vals))+(metric==='volume'?' kg':metric==='reps'?' reps':' kg'):'—';$('lastMark').textContent=vals.length?fmt(vals[vals.length-1])+(metric==='reps'?' reps':' kg'):'—';const delta=vals.length>1?changePct(vals[0],vals[vals.length-1]):null;$('changeMark').textContent=delta===null?'—':`${delta>0?'+':''}${fmt(delta)}%`;$('changeMark').style.color=delta===null?'var(--text)':delta>=0?'var(--green)':'var(--red)';renderInsights();}
-$('progressExercise').onchange=updateProgressChart;$('progressMetric').onchange=updateProgressChart;$('progressWindow').onchange=updateProgressChart;window.addEventListener('resize',()=>{if($('page-progress').classList.contains('active')){updateProgressChart();renderMusclePerformance();renderBodyProgress();renderWorkloadProgress()}});
+$('progressExercise').onchange=updateProgressChart;$('progressMetric').onchange=updateProgressChart;$('progressWindow').onchange=updateProgressChart;window.addEventListener('resize',()=>{if($('page-progress').classList.contains('active')){renderUnifiedPerformance();updateProgressChart();renderMusclePerformance();renderBodyProgress();renderWorkloadProgress()}});
 function renderInsights(){const key=$('progressExercise').value;const all=collectExerciseHistory()[key]||[];const x=all.slice(-4);const root=$('progressInsights');if(x.length<2){root.innerHTML='<div class="empty">Necesitas al menos dos exposiciones registradas del mismo ejercicio y equipo para comparar.</div>';return}const last=x[x.length-1],prev=x[x.length-2],pct=changePct(prev.best,last.best);let headline,body,tag;if(pct>2){headline='Tendencia positiva';tag='green';body=`La mejor serie registrada ha subido aproximadamente ${fmt(pct)}% en e1RM estimado respecto a la exposición anterior. Mantén el criterio técnico y confirma un RIR similar.`}else if(pct< -2){headline='Rendimiento a la baja';tag='orange';body=`La última exposición cae ${fmt(Math.abs(pct))}% respecto a la anterior. Una sesión aislada no implica pérdida de fuerza: revisa sueño, fatiga, orden del ejercicio, técnica y ajustes de máquina.`}else{headline='Rendimiento estable';tag='orange';body=`La variación entre las dos últimas exposiciones es pequeña (${fmt(pct)}%). Observa 2–3 sesiones más y utiliza progresión doble: primero suma repeticiones dentro del rango; después aumenta la carga mínima disponible.`}if(last.assisted){headline='Progresión en máquina asistida';tag='green';body=`La evolución se interpreta principalmente por repeticiones, no por 1RM estimado. En este tipo de máquina, normalmente una menor asistencia representa más carga efectiva; registra siempre la asistencia y las repeticiones con el mismo ajuste.`;}root.innerHTML=`<div class="card"><span class="tag ${tag}">${headline}</span><p style="font-size:12px;line-height:1.6;color:#c1cfe5">${body}</p></div><div class="card"><span class="tag">Calidad del dato</span><p style="font-size:12px;line-height:1.6;color:#c1cfe5">Se han encontrado ${all.length} exposiciones para este ejercicio. La comparación solo es razonable si mantienes máquina, ajustes, recorrido, técnica, convención de carga y proximidad al fallo similares. La torre de una marca no equivale a la de otra.</p></div>`;}
 // Library
 function renderLibrary(){const brands=[...new Set(allMachines().map(m=>m.brand))].sort();const bf=$('brandFilter');const old=bf.value;bf.innerHTML='<option value="all">Todas las marcas</option>'+brands.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');if(brands.includes(old))bf.value=old;renderMachines();$('brandTags').innerHTML=brands.filter(b=>b!=='Peso libre / genérico').map(b=>`<span class="tag">${escapeHtml(b)}</span>`).join('');}
