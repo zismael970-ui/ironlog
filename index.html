@@ -158,6 +158,7 @@ button,input,select,textarea{touch-action:manipulation}summary{cursor:pointer;pa
       <div class="field" style="margin-top:12px"><label>Notas de la sesión</label><textarea id="sessionNotes" placeholder="Sensaciones, cambios de técnica, molestias, incidencias, duración..."></textarea></div></details>
     </div>
     <div class="sectionhead"><div><h2>Ejercicios y series</h2><p>Selecciona la máquina exacta siempre que la identifiques. Puedes añadir una referencia propia.</p></div><button class="btn primary" id="addExercise">＋ Añadir ejercicio</button></div>
+    <div class="card" style="margin:12px 0"><h3 style="margin:0 0 7px">✍️ Registro rápido desde notas</h3><p class="hint">Pega el entrenamiento tal como lo escribes: nombre del ejercicio, una serie por línea y comentarios libres. Después revisa las cargas y pulsa Guardar sesión.</p><textarea id="quickNotes" rows="9" style="width:100%;margin:10px 0" placeholder="Curl femoral sentado&#10;45kg - 10 reps&#10;65kg - 8 reps&#10;65kg - 8 reps"></textarea><div class="toolbar"><button class="btn primary" id="parseQuickNotes" type="button">Convertir notas en series</button><button class="btn ghost" id="loadNovemberLegs" type="button">Cargar pierna del 04/11</button></div><p class="hint">No se guardará automáticamente. El peso por lado se conserva como tal; no se suma el peso desconocido de la barra.</p></div>
     <div class="exercisebuilder" id="exerciseBuilder"><div class="empty"><b>Aún no has añadido ejercicios</b>Pulsa «Añadir ejercicio» para seleccionar un movimiento, máquina y registrar cada serie.</div></div>
     <div class="card session-savebar" style="margin-top:15px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b style="font-size:13px">¿Sesión terminada?</b><div class="hint">Se guardarán los ejercicios, cargas, repeticiones, RIR/RPE y contexto.</div></div><div class="toolbar"><button class="btn ghost" id="clearSession">Limpiar formulario</button><button class="btn primary" id="saveSession">Guardar sesión ✓</button></div></div>
   </section>
@@ -360,6 +361,68 @@ function resetDraft(){draftExercises=[];renderDraft();}
 function previousExercise(e){return [...data.sessions].filter(s=>s.id!==editingSessionId&&s.date<=$('sessionDate').value).sort((a,b)=>b.date.localeCompare(a.date)).flatMap(s=>(s.exercises||[]).filter(x=>x.machineId===e.machineId&&x.name.toLowerCase()===e.name.toLowerCase()&&(x.setup||'').toLowerCase()===(e.setup||'').toLowerCase()&&(x.loadBasis||'')===(e.loadBasis||'')).map(x=>({date:s.date,exercise:x})))[0]}
 function renderDraft(){const root=$('exerciseBuilder');root.innerHTML=draftExercises.length?draftExercises.map((e,i)=>{const m=machineById(e.machineId),last=previousExercise(e);return `<article class="exercise-card" data-ex-index="${i}"><div class="exercise-card-head"><div><h4>${escapeHtml(e.name||m.name)}</h4><p>${escapeHtml(m.brand)} · ${escapeHtml(m.line)} · ${escapeHtml(m.code)}</p><span class="tag">${escapeHtml(e.loadBasis||'Carga')}</span></div><button class="btn danger tiny" data-action="removeex" data-i="${i}">Quitar ejercicio</button></div><div class="field" style="margin-top:12px"><label>Ajustes del equipo / ejecución<input data-ex-field="setup" data-i="${i}" value="${escapeHtml(e.setup||'')}" placeholder="Asiento, agarre, inclinación…"></label></div><p class="hint previous">${last?'Última vez · '+dateFmt(last.date)+': '+last.exercise.sets.map(s=>escapeHtml(s.load)+' kg × '+escapeHtml(s.reps)+(s.type==='warmup'?' (calent.)':'')).join(' · '):'Sin referencia anterior con esta máquina, ajustes y convención de carga.'}</p><div class="mobile-sets">${e.sets.map((s,j)=>`<div class="set-card"><div class="set-heading"><strong>Serie ${j+1}</strong><select aria-label="Tipo de serie ${j+1}" data-field="type" data-i="${i}" data-j="${j}"><option value="work" ${s.type!=='warmup'?'selected':''}>Trabajo</option><option value="warmup" ${s.type==='warmup'?'selected':''}>Calentamiento</option></select><button class="btn danger tiny" aria-label="Eliminar serie ${j+1}" data-action="removeset" data-i="${i}" data-j="${j}">×</button></div><div class="set-main">${setInput('load','Carga · kg',s.load,i,j,0,9999,'any')}${setInput('reps','Repeticiones',s.reps,i,j,1,1000,1)}${setInput('rir','RIR · opcional',s.rir,i,j,0,10,'any')}</div><details><summary>RPE, descanso y notas</summary><div class="set-main">${setInput('rpe','RPE',s.rpe,i,j,1,10,'any')}${setInput('rest','Descanso · s',s.rest,i,j,0,3600,1)}<label class="field">Notas<input data-field="notes" data-i="${i}" data-j="${j}" value="${escapeHtml(s.notes||'')}" /></label></div></details><button class="btn ghost tiny" data-action="rest" data-i="${i}" data-j="${j}">Iniciar descanso</button></div>`).join('')}</div><button class="btn primary add-set" data-action="addset" data-i="${i}">＋ Añadir serie</button><p class="hint">La nueva serie conserva la carga anterior; introduce las repeticiones realizadas. Las series de calentamiento se conservan sin incluirse en la progresión.</p></article>`}).join(''):'<div class="empty"><b>Empieza tu entrenamiento</b>Añade un ejercicio o recupera tu última sesión del mismo tipo.<p><button class="btn primary" data-action="quickadd">＋ Añadir primer ejercicio</button></p></div>';syncSessionSteps();}
 function setInput(field,label,value,i,j,min,max,step){return `<label class="field">${label}<input type="number" inputmode="${step===1?'numeric':'decimal'}" min="${min}" max="${max}" step="${step}" data-field="${field}" data-i="${i}" data-j="${j}" value="${escapeHtml(value??'')}" placeholder="${field==='load'?'0':field==='reps'?'—':'Opcional'}"></label>`}
+
+const novemberLegNotes=`Multipower
+Potencia 15kg por lado - 6 repes
+Potencia 15kg por lado - 7 repes
+Sentadilla (fase final con potencia) 25kg por lado - 6 repes
+
+Curl femoral sentado
+45kg - 10 reps
+65kg - 8 reps
+65kg - 8 reps
+
+Extensiones cuadriceps
+85kg (explosivo y controlado) - 8 repes
+85kg (me cuesta ser explosivo al final se nota la fatiga) - 8 repes
+85kg - 7 repes y no me salía otra mas
+
+Extensiones de pantorrilla en maquina de press de pierna sentado
+105 kg - 12 repes (fase concentrica explosiva, aguanto un poco y excentrica controlada)
+115 kg - 10 repes (igual que la anterior)
+115 kg - 9 repes (no me salía otra más)
+
+Aducción de caderas en maquina
+145kg - 11 reps
+145kg - 9 reps
+145kg - 8 reps`;
+function quickParseNotes(raw){
+ const blocks=raw.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ const result=[];
+ for(const block of blocks){
+  const lines=block.split(/\n/).map(x=>x.trim()).filter(Boolean);
+  const name=lines.shift();if(!name)continue;
+  const sets=[];let side=false;
+  for(const line of lines){
+   const m=line.match(/(\d+(?:[.,]\d+)?)\s*kg\s*(por\s*lado)?[\s\S]*?[-–—]\s*(\d+)\s*(?:rep(?:es|s|eticiones)?)?/i);
+   if(!m)continue;
+   const perSide=!!m[2]||/por\s*lado/i.test(line);side=side||perSide;
+   const notes=line.replace(m[0],'').replace(/^\s*[-–—]\s*/,'').trim();
+   sets.push({type:'work',load:Number(m[1].replace(',','.')),reps:Number(m[3]),rir:/no\s+me\s+sal[ií]a\s+otra/i.test(line)?0:'',rpe:'',rest:'',notes:line});
+  }
+  if(!sets.length)continue;
+  const id='quick-'+name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  if(!data.customMachines.some(m=>m.id===id))data.customMachines.push({id,brand:'Sin identificar',line:'Registro rápido',code:'Pendiente',name,group:'Pierna',loading:'stack',certainty:'Máquina por identificar'});
+  result.push({machineId:id,name,loadBasis:side?'kg por lado':'kg torre (marcado)',setup:'Modelo exacto pendiente de identificar',sets});
+ }
+ return result;
+}
+$('parseQuickNotes').onclick=()=>{
+ if(draftExercises.length&&!confirm('¿Sustituir los ejercicios del borrador por los de las notas?'))return;
+ const parsed=quickParseNotes($('quickNotes').value);
+ if(!parsed.length){toast('No se han reconocido series. Usa líneas como 65kg - 8 reps');return}
+ draftExercises=parsed;renderDraft();persistDraft();toast(parsed.length+' ejercicios convertidos. Revisa antes de guardar.');
+};
+$('loadNovemberLegs').onclick=()=>{
+ if(draftExercises.length&&!confirm('¿Sustituir el borrador actual?'))return;
+ $('quickNotes').value=novemberLegNotes;
+ $('sessionDate').value='2026-11-04';$('sessionSplit').value='legs';syncSplitCards();
+ $('sessionSleep').value='8';$('sessionEnergy').value='3';
+ $('sessionNotes').value='Sueño aproximado: 8–8,5 horas. Energía previa normal. Ejecución explosiva en varios ejercicios; fatiga progresiva en extensiones de cuádriceps. Multipower: barra no contabilizada; 15/25 kg por lado.';
+ draftExercises=quickParseNotes(novemberLegNotes);renderDraft();persistDraft();go('log');
+ toast('Entrenamiento del 04/11 preparado. Revisa y guarda en tu perfil.');
+};
+
 $('addExercise').onclick=()=>openExerciseModal();
 function openExerciseModal(){const brandOpts=[...new Set(allMachines().map(m=>m.brand))].sort().map(b=>`<option>${escapeHtml(b)}</option>`).join('');$('modalTitle').textContent='Añadir ejercicio';$('modalContent').innerHTML=`<div class="formgrid two"><div class="field"><label>Buscar máquina / ejercicio</label><input id="modalMachineSearch" placeholder="Ej. press inclinado, SS-CP, polea..." /></div><div class="field"><label>Marca</label><select id="modalBrand"><option value="all">Todas las marcas</option>${brandOpts}</select></div></div><div class="field" style="margin-top:10px"><label>Máquina o equipo</label><select id="modalMachine" size="8" style="height:210px"></select></div><div class="formgrid two" style="margin-top:10px"><div class="field"><label>Nombre del ejercicio (editable)</label><input id="modalExerciseName" placeholder="Ej. press banca inclinado" /></div><div class="field"><label>Cómo anotas la carga</label><select id="modalLoadBasis"><option value="kg torre (marcado)">kg indicados en torre</option><option value="kg discos totales">kg de discos totales</option><option value="kg por lado">kg por lado</option><option value="kg por mancuerna">kg por mancuerna</option><option value="kg totales con barra">kg totales (incluye barra)</option><option value="kg de asistencia">kg de asistencia</option><option value="peso corporal">Peso corporal</option><option value="otro">Otra convención (detallar en nota)</option><option value="Carga por confirmar">Por confirmar</option></select></div></div><div class="field" style="margin-top:10px"><label>Ajustes / configuración (opcional)</label><input id="modalSetup" placeholder="Ej. asiento 4, agarre neutro, banco 30°..." /></div><p class="hint">Elige la referencia que realmente ves en tu gimnasio. Si no reconoces el modelo exacto, usa una opción genérica o crea una máquina personalizada.</p><div class="toolbar" style="justify-content:flex-end;margin-top:15px"><button class="btn ghost" id="cancelAdd">Cancelar</button><button class="btn primary" id="confirmAdd">Añadir a la sesión</button></div>`;
 const ms=$('modalMachine'),q=$('modalMachineSearch'),bf=$('modalBrand');function populate(){let list=allMachines().filter(m=>(bf.value==='all'||m.brand===bf.value)&&(`${m.name} ${m.brand} ${m.line} ${m.code}`).toLowerCase().includes(q.value.toLowerCase()));ms.innerHTML=list.map(m=>`<option value="${escapeHtml(m.id)}">${escapeHtml(m.brand)} · ${escapeHtml(m.name)}${m.code&&m.code!=='—'?' ['+escapeHtml(m.code)+']':''} — ${escapeHtml(m.line)}</option>`).join('');if(!list.length)ms.innerHTML='<option value="">No hay coincidencias — crea una máquina personalizada</option>';else ms.selectedIndex=0;if(ms.onchange&&list.length)ms.onchange();}
